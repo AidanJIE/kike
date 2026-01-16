@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Mi Librería</string>
+    <string name="navigation_drawer_open">Abrir menú</string>
+    <string name="navigation_drawer_close">Cerrar menú</string>
+    <string name="inventario">Inventario</string>
+    <string name="ventas">Ventas</string>
+    <string name="busqueda">Búsqueda</string>
+    <string name="estadisticas">Estadísticas</string>
+</resources>

@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:showIn="navigation_view">
+
+    <group android:checkableBehavior="single">
+
+        <item
+            android:id="@+id/nav_inventario"
+            android:icon="@drawable/ic_inventory"
+            android:title="Inventario" />
+
+        <item
+            android:id="@+id/nav_ventas"
+            android:icon="@drawable/ic_sales"
+            android:title="Ventas" />
+
+        <item
+            android:id="@+id/nav_busqueda"
+            android:icon="@drawable/ic_search"
+            android:title="Búsqueda" />
+
+        <item
+            android:id="@+id/nav_estadisticas"
+            android:icon="@drawable/ic_stats"
+            android:title="Estadísticas" />
+
+    </group>
+
+</menu>
