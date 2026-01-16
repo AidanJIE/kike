@@ -78,30 +78,36 @@ public class VentasFragment extends Fragment {
         Button btnBuscarLibro = dialogView.findViewById(R.id.btn_buscar_libro);
         TextView tvStock = dialogView.findViewById(R.id.tv_stock_disponible);
 
+        // 🔍 BUSCAR LIBRO (PRECIO + STOCK)
         btnBuscarLibro.setOnClickListener(v -> {
             String titulo = etLibro.getText().toString().trim();
+
             if (titulo.isEmpty()) {
-                Toast.makeText(getContext(), "Escribe el título", Toast.LENGTH_SHORT).show();
+                Toast.makeText(getContext(),
+                        "Escribe el título del libro",
+                        Toast.LENGTH_SHORT).show();
                 return;
             }
 
             double precio = databaseHelper.obtenerPrecioLibro(titulo);
+            int stock = databaseHelper.obtenerStockLibro(titulo);
+
             if (precio > 0) {
                 etPrecio.setText(String.valueOf(precio));
-                tvStock.setText("Libro encontrado");
+                tvStock.setText("Stock disponible: " + stock);
             } else {
+                etPrecio.setText("");
                 tvStock.setText("Libro no encontrado");
             }
         });
 
         builder.setView(dialogView)
                 .setTitle("Registrar venta")
-                .setPositiveButton("Registrar", (d, w) ->
-                        procesarVenta(etLibro, etCantidad, etPrecio, etCliente))
+                .setPositiveButton("Registrar",
+                        (d, w) -> procesarVenta(etLibro, etCantidad, etPrecio, etCliente))
                 .setNegativeButton("Cancelar", null)
                 .show();
     }
-
 
     private void procesarVenta(EditText etLibro,
                                EditText etCantidad,
@@ -124,15 +130,39 @@ public class VentasFragment extends Fragment {
             int cantidad = Integer.parseInt(cantidadStr);
             double precio = Double.parseDouble(precioStr);
 
+            // ❌ LIBRO NO EXISTE
+            double precioCheck = databaseHelper.obtenerPrecioLibro(libro);
+            if (precioCheck <= 0) {
+                Toast.makeText(getContext(),
+                        "El libro no existe",
+                        Toast.LENGTH_SHORT).show();
+                return;
+            }
+
+            // 📦 STOCK INSUFICIENTE
+            int stockDisponible = databaseHelper.obtenerStockLibro(libro);
+            if (cantidad > stockDisponible) {
+                Toast.makeText(getContext(),
+                        "Stock insuficiente. Disponible: " + stockDisponible,
+                        Toast.LENGTH_LONG).show();
+                return;
+            }
+
             SimpleDateFormat sdf =
                     new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault());
             String fecha = sdf.format(new Date());
 
             Venta venta = new Venta(0, libro, cantidad, precio, fecha, cliente);
 
+            // 💾 GUARDAR VENTA
             long id = databaseHelper.agregarVenta(venta);
             venta.setId((int) id);
 
+            // 🔄 ACTUALIZAR STOCK
+            databaseHelper.descontarStockPorTitulo(libro, cantidad);
+
+
+            // 📋 ACTUALIZAR UI
             listaVentas.add(0, venta);
             adapter.notifyItemInserted(0);
             recyclerView.scrollToPosition(0);
@@ -143,7 +173,7 @@ public class VentasFragment extends Fragment {
 
         } catch (NumberFormatException e) {
             Toast.makeText(getContext(),
-                    "Cantidad y precio inválidos",
+                    "Cantidad o precio inválidos",
                     Toast.LENGTH_SHORT).show();
         }
     }

@@ -407,6 +407,26 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         return listaVentas;
     }
 
+    public boolean descontarStockPorTitulo(String titulo, int cantidadVendida) {
+        SQLiteDatabase db = this.getWritableDatabase();
+
+        String sql = "UPDATE " + TABLE_LIBROS +
+                " SET " + COLUMN_CANTIDAD + " = " + COLUMN_CANTIDAD + " - ?" +
+                " WHERE " + COLUMN_TITULO + " = ? AND " + COLUMN_CANTIDAD + " >= ?";
+
+        db.beginTransaction();
+        try {
+            db.execSQL(sql, new Object[]{cantidadVendida, titulo, cantidadVendida});
+            db.setTransactionSuccessful();
+            return true;
+        } catch (Exception e) {
+            return false;
+        } finally {
+            db.endTransaction();
+            db.close();
+        }
+    }
+
 
 
 
